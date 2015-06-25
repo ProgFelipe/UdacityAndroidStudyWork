@@ -2,8 +2,12 @@ package com.example.android.sunshine.app;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -22,11 +26,32 @@ import java.util.List;
 /**
  * Created by felipe.gutierrez on 25/06/2015.
  */
-public class ForecastFragment {
+public class ForecastFragment extends Fragment {
+
+    private ArrayAdapter<String> mForecastAdapter;
 
     public ForecastFragment() {
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        //Handle  menu events
+        setHasOptionsMenu(true);
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.forecastfragment, menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id = item.getItemId();
+        if(id == R.id.action_refresh){
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -44,7 +69,7 @@ public class ForecastFragment {
         // Now that we have some dummy forecast data, create an ArrayAdapter.
         // The ArrayAdapter will take data from a source (like our dummy forecast) and
         // use it to populate the ListView it's attached to.
-        ArrayAdapter mForecastAdapter =
+        mForecastAdapter =
                 new ArrayAdapter<String>(
                         getActivity(), // The current context (this activity)
                         R.layout.list_item_forecast, // The name of the layout ID.
@@ -60,7 +85,7 @@ public class ForecastFragment {
     }
 
     public class FetchWeatherTask extends AsyncTask<Void, Void, Void>{
-
+        private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
         @Override
         protected Void doInBackground(Void... voids) {
             // These two need to be declared outside the try/catch
@@ -104,8 +129,9 @@ public class ForecastFragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
+                Log.i(this.getClass().getSimpleName(), forecastJsonStr);
             } catch (IOException e) {
-                Log.e("PlaceholderFragment", "Error ", e);
+                Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
                 // to parse it.
                 return null;
